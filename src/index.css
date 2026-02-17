@@ -1,56 +1,45 @@
+@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;600;700&display=swap');
 
-:root {
-  --bg-dark: #0f111a;
-  --bg-card: #1a1d29;
-  --bg-accent: #24283b;
-  --primary: #5d5fef;
-  --primary-glow: rgba(93, 95, 239, 0.4);
-  --success: #00e676;
-  --danger: #ff5252;
-  --text-main: #ffffff;
-  --text-muted: #94a3b8;
-  --glass: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --tile-bg: #2d324d;
-  --tile-hover: #3d4466;
-  --tile-active: #4a527a;
+@theme {
+  --color-bg-dark: #0f111a;
+  --color-bg-card: #1a1d29;
+  --color-bg-accent: #24283b;
+  --color-primary: #5d5fef;
+  --color-success: #00e676;
+  --color-danger: #ff5252;
+  --color-tile-bg: #2d324d;
+  --color-tile-hover: #3d4466;
+
+  --font-inter: "Inter", sans-serif;
+  --font-outfit: "Outfit", sans-serif;
+
+  --shadow-primary-glow: 0 0 15px rgba(93, 95, 239, 0.4);
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
+@layer base {
+  body {
+    @apply bg-bg-dark text-white font-inter overflow-hidden h-screen w-screen;
+  }
 }
 
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: var(--bg-dark);
-  color: var(--text-main);
-  overflow: hidden;
-  height: 100vh;
-  width: 100vw;
-}
+@layer components {
+  .glass-panel {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl;
+  }
 
-#root {
-  height: 100%;
-}
+  .btn-primary {
+    @apply bg-primary text-white font-extrabold py-4 px-6 rounded-xl shadow-primary-glow hover:-translate-y-0.5 transition-all active:scale-95;
+  }
 
-.app-container {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  background: radial-gradient(circle at 50% 50%, #1e2235 0%, #0f111a 100%);
-}
+  .btn-success {
+    @apply bg-success text-green-950 font-extrabold py-4 px-6 rounded-xl hover:-translate-y-0.5 transition-all active:scale-95;
+  }
 
-/* Glassmorphism Classes */
-.glass-panel {
-  background: var(--glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
+  /* Custom Slider Styling */
+  .mine-slider {
+    @apply w-full h-1.5 bg-tile-bg rounded-lg appearance-none cursor-pointer accent-primary;
+  }
 }
 
 /* Custom Scrollbar */
@@ -63,10 +52,5 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--glass-border);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  @apply bg-white/10 rounded-full hover:bg-slate-400 transition-colors;
 }
