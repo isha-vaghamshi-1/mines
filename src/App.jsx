@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
+import toast, { Toaster } from 'react-hot-toast';
 
 // Shared Components
 import Tile from './shared/components/Tile';
@@ -15,9 +16,9 @@ import GameGrid from './shared/components/GameGrid';
 import { GRID_SIZE, calculateMultiplier, generateMines } from './shared/utils/gameLogic';
 
 const App = () => {
-  const { register, watch, setValue, getValues, handleSubmit } = useForm({
+  const { register, watch, setValue, getValues, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
-      betAmount: 10,
+      betAmount: 5,
       mineCount: 3,
       balance: 1000,
       gameState: 'idle',
@@ -45,7 +46,8 @@ const App = () => {
   const currentProfit = (watchedBetAmount * currentMultiplier) - watchedBetAmount;
 
   const onStartGame = (data) => {
-    if (watchedBalance < data.betAmount) return alert("Insufficient balance!");
+    if (getValues('gameState') === 'playing') return;
+    if (watchedBalance < data.betAmount) return toast.error("Insufficient balance!");
 
     setValue('balance', watchedBalance - data.betAmount);
     setValue('revealedCount', 0);
@@ -66,7 +68,7 @@ const App = () => {
     const newGrid = [...grid];
     const isMine = mines.has(index);
 
-    newGrid[index] = { ...newGrid[index], revealed: true };
+    newGrid[index] = { ...newGrid[index], revealed: true, userRevealed: true };
     setGrid(newGrid);
 
     if (isMine) {
@@ -81,7 +83,7 @@ const App = () => {
   };
 
   const cashout = () => {
-    if (watchedGameState !== 'playing' || watchedRevealedCount === 0) return;
+    if (getValues('gameState') !== 'playing' || watchedRevealedCount === 0) return;
     const winAmount = watchedBetAmount * currentMultiplier;
     setValue('balance', watchedBalance + winAmount);
     endGame('win', winAmount);
@@ -98,21 +100,34 @@ const App = () => {
         colors: ['#5d5fef', '#00e676', '#ffffff']
       });
     }
+
+    // Automatically reset to idle after a delay to allow starting a new bet
+    setTimeout(() => {
+      if (getValues('gameState') === 'ended') {
+        setValue('gameState', 'idle');
+        setValue('lastResult', null);
+        setGrid(Array(GRID_SIZE).fill({ revealed: false, isMine: false }));
+      }
+    }, 4000);
   };
+
+  console.log('watchedGameState >> ', watchedGameState)
 
   const adjustBet = (type) => {
     if (watchedGameState === 'playing') return;
     const currentBet = Number(getValues('betAmount'));
-    setValue('betAmount', type === 'half' ? Math.max(1, Math.floor(currentBet / 2)) : currentBet * 2);
+    setValue('betAmount', type === 'half' ? Math.max(5, Math.floor(currentBet / 2)) : currentBet * 2);
   };
 
   return (
     <div className="flex flex-col md:flex-row h-screen w-screen bg-[radial-gradient(circle_at_50%_50%,#1e2235_0%,#0f111a_100%)] overflow-hidden">
+      <Toaster position="top-center" reverseOrder={false} />
       <aside className="w-full md:w-80 h-auto md:h-full p-4 md:p-8 flex flex-col gap-4 md:gap-8 glass-panel rounded-none border-x-0 md:border-y-0 md:border-l-0 z-10 overflow-y-auto">
         <Header balance={watchedBalance} />
 
         <BetControls
           register={register}
+          errors={errors}
           watchedMineCount={watchedMineCount}
           watchedGameState={watchedGameState}
           watchedBetAmount={watchedBetAmount}

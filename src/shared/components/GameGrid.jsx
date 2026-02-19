@@ -12,6 +12,7 @@ const GameGrid = ({ grid, onTileClick, gameState, isShaking }) => {
                 {grid.map((tile, i) => (
                     <Tile
                         key={i}
+                        index={i}
                         tile={tile}
                         onClick={() => onTileClick(i)}
                         gameState={gameState}

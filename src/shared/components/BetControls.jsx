@@ -1,7 +1,9 @@
 import React from 'react';
+import toast from 'react-hot-toast';
 
 const BetControls = ({
     register,
+    errors,
     watchedMineCount,
     watchedGameState,
     watchedBetAmount,
@@ -13,15 +15,24 @@ const BetControls = ({
     setValue,
     cashout
 }) => {
+    const onError = (errors) => {
+        if (errors.betAmount) {
+            toast.error(errors.betAmount.message || "Minimum bet is 5!");
+        }
+    };
+
     return (
-        <form onSubmit={handleSubmit(onStartGame)} className="flex flex-col gap-4 md:gap-6">
+        <form onSubmit={handleSubmit(onStartGame, onError)} className="flex flex-col gap-4 md:gap-6">
             <div className="flex flex-col gap-2.5">
                 <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Bet Amount</label>
                 <div className="flex bg-bg-accent rounded-xl p-1 border border-white/10">
                     <input
-                        {...register('betAmount', { valueAsNumber: true, min: 0 })}
+                        {...register('betAmount', {
+                            valueAsNumber: true,
+                            min: { value: 5, message: "Minimum bet is 5!" }
+                        })}
                         type="number"
-                        className="bg-transparent border-none text-white px-4 py-2 w-full font-semibold focus:outline-none"
+                        className={`bg-transparent border-none text-white px-4 py-2 w-full font-semibold focus:outline-none ${errors.betAmount ? 'text-red-400' : ''}`}
                         disabled={watchedGameState === 'playing'}
                     />
                     <div className="flex gap-1">
@@ -61,7 +72,7 @@ const BetControls = ({
                         </div>
                     </button>
                 ) : (
-                    <button type="submit" className="btn-primary w-full">BET</button>
+                    <button type="button" onClick={handleSubmit(onStartGame, onError)} className="btn-primary w-full">BET</button>
                 )}
             </div>
         </form>
